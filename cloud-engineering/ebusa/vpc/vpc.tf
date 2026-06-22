@@ -27,7 +27,7 @@ resource "aws_vpc" "eb_usa_vpc" {
   enable_dns_support   = var.enable_dns_support
   enable_dns_hostnames = var.enable_dns_hostnames
 
-  tags {
+  tags = {
     Name        = var.VPC_Name
     Environment = var.Environment
     Client      = var.Client
@@ -35,8 +35,8 @@ resource "aws_vpc" "eb_usa_vpc" {
 }
 
 resource "aws_subnet" "public_subnet_1" {
-  vpc               = aws_vpc.eb_usa_vpc.id
-  cidr_block        = var.public_subnet_1
+  vpc_id            = aws_vpc.eb_usa_vpc.id
+  cidr_block        = var.public_subnet1_cidr
   availability_zone = var.az_public_subnet1
 
   map_public_ip_on_launch = true
@@ -47,8 +47,8 @@ resource "aws_subnet" "public_subnet_1" {
 }
 
 resource "aws_subnet" "public_subnet_2" {
-  vpc               = aws_vpc.eb_usa_vpc.id
-  cidr_block        = var.public_subnet_2
+  vpc_id            = aws_vpc.eb_usa_vpc.id
+  cidr_block        = var.public_subnet2_cidr
   availability_zone = var.az_public_subnet2
 
   map_public_ip_on_launch = true
@@ -59,7 +59,7 @@ resource "aws_subnet" "public_subnet_2" {
 }
 
 resource "aws_subnet" "private_subnet_1" {
-  vpc               = aws_vpc.eb_usa_vpc.id
+  vpc_id            = aws_vpc.eb_usa_vpc.id
   cidr_block        = var.private_subnet1_cidr
   availability_zone = var.az_private_subnet1
 
@@ -69,7 +69,7 @@ resource "aws_subnet" "private_subnet_1" {
 }
 
 resource "aws_subnet" "private_subnet_2" {
-  vpc               = aws_vpc.eb_usa_vpc.id
+  vpc_id            = aws_vpc.eb_usa_vpc.id
   cidr_block        = var.private_subnet2_cidr
   availability_zone = var.az_private_subnet2
 
@@ -79,7 +79,7 @@ resource "aws_subnet" "private_subnet_2" {
 }
 
 resource "aws_internet_gateway" "gateway" {
-  vpc_id = var.eb_usa_vpc.id
+  vpc_id = aws_vpc.eb_usa_vpc.id
 
   tags = {
     Name = "EB-InternetGW-Dev"
@@ -97,7 +97,7 @@ resource "aws_route" "public_routing" {
 }
 
 resource "aws_route_table_association" "public_association" {
-  for_each = toset(local.public_subnets)
+  for_each = local.public_subnets
 
   subnet_id      = each.value
   route_table_id = aws_route_table.public_route.id
