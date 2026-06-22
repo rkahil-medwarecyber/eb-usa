@@ -24,7 +24,7 @@ variable "enable_dns_hostnames" {
 }
 
 variable "Environment" {
-  descripton = "Environment"
+  description = "Environment"
   type       = string
 }
 
@@ -63,12 +63,12 @@ variable "az_public_subnet2" {
 }
 
 variable "public_subnet1_name" {
-  desription = "Public Subnet1 Name"
+  description = "Public Subnet1 Name"
   type       = string
 }
 
 variable "public_subnet2_name" {
-  desription = "Public Subnet2 Name"
+  description = "Public Subnet2 Name"
   type       = string
 }
 
@@ -97,12 +97,12 @@ variable "az_private_subnet2" {
 }
 
 variable "private_subnet1_name" {
-  desription = "Private Subnet1 Name"
+  description = "Private Subnet1 Name"
   type       = string
 }
 
 variable "private_subnet2_name" {
-  desription = "Private Subnet2 Name"
+  description = "Private Subnet2 Name"
   type       = string
 }
 
