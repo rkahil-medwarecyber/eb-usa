@@ -14,6 +14,14 @@ provider "aws" {
 # This data source checks your connection by fetching your AWS Account ID
 data "aws_caller_identity" "current" {}
 
+
+locals {
+  public_subnets = {
+    subnet_1 = aws_subnet.public_subnet_1.id
+    subnet_2 = aws_subnet.public_subnet_2.id
+  }
+}
+
 resource "aws_vpc" "eb_usa_vpc" {
   cidr_block           = var.cidr_block
   enable_dns_support   = var.enable_dns_support
@@ -68,4 +76,29 @@ resource "aws_subnet" "private_subnet_2" {
   tags {
     Name = var.private_subnet2_name
   }
+}
+
+resource "aws_internet_gateway" "gateway" {
+  vpc_id = var.eb_usa_vpc.id
+
+  tags = {
+    Name = "EB-InternetGW-Dev"
+  }
+}
+
+resource "aws_route_table" "public_route" {
+  vpc_id = aws_vpc.eb_usa_vpc.id
+}
+
+resource "aws_route" "public_routing" {
+  route_table_id         = aws_route_table.public_route.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.gateway.id
+}
+
+resource "aws_route_table_association" "public_association" {
+  for_each = toset(local.public_subnets)
+
+  subnet_id      = each.value
+  route_table_id = aws_route_table.public_route.id
 }
