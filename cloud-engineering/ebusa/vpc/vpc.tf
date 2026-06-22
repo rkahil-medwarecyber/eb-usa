@@ -20,7 +20,7 @@ resource "aws_vpc" "eb_usa_vpc" {
   enable_dns_hostnames = var.enable_dns_hostnames
 
   tags {
-    Name        = var.VPC-Name
+    Name        = var.VPC_Name
     Environment = var.Environment
     Client      = var.Client
   }

@@ -33,7 +33,7 @@ variable "Client" {
   type        = string
 }
 
-variable "VPC-Name" {
+variable "VPC_Name" {
   description = "VPC Name"
   type        = string
 }
@@ -53,11 +53,13 @@ variable "public_subnet2_cidr" {
 variable "az_public_subnet1" {
   description = "Availability Zone for Public Subnet 1"
   type        = string
+  default     = "us-east-2a"
 }
 
 variable "az_public_subnet2" {
   description = "Availability Zone for Public Subnet 2"
   type        = string
+  default     = "us-east-2b"
 }
 
 variable "public_subnet1_name" {
@@ -75,13 +77,11 @@ variable "public_subnet2_name" {
 variable "private_subnet1_cidr" {
   description = "Private Subnet1 CIDR"
   type        = string
-  default     = "us-east-2a"
 }
 
 variable "private_subnet2_cidr" {
   description = "Private Subnet2 CIDR"
   type        = string
-  default     = "us-east-2b"
 }
 
 variable "az_private_subnet1" {
