@@ -30,3 +30,8 @@ variable "Client" {
   description = "Client Name"
   type        = string
 }
+
+variable "VPC-Name" {
+  description = "VPC Name"
+  type        = string
+}
