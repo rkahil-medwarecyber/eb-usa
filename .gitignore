@@ -4,6 +4,7 @@
 # Ignore Terraform state files (optional but recommended)
 *.tfstate
 *.tfstate.*
+*.terraform.lock.hcl*
 
 # Ignore crash logs
 crash.log
