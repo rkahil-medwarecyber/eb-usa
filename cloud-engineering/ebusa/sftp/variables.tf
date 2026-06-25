@@ -1,4 +1,4 @@
-##### VPC Variables #####
+##### SFTP Variables #####
 
 variable "server_name" {
   description = "SFTP Server Name"
@@ -60,8 +60,47 @@ variable "host_key" {
 
 variable "directory_listing_optimization" {
   description = "Whether or not performance for your S3 directories is optimized"
-  type        = string
-  default     = "ENABLED"
+  type        = bool
+  default     = True
 }
+
+##### IAM Role Variables #####
+
+variable "iam_role_name" {
+  description = "IAM Role Name to Use for SFTP"
+  type        = string
+}
+
+##### S3 Variables #####
+
+variable "s3_bucket_name" {
+  description = "S3 Bucket Name"
+  type        = string
+}
+
+variable "versioning" {
+  description = "S3 Versioning"
+  type        = string
+  default     = "Enabled"
+}
+
+variable "region" {
+  description = "AWS Region"
+  type        = string
+  default     = "us-east-2"
+}
+
+variable "sse_algorithm" {
+  description = "S3 Encryption at rest"
+  type        = string
+  default     = "AES256"
+}
+
+variable "blocked_encryption_types" {
+  description = "Blocked Encryptions"
+  type        = list(string)
+  default     = ["SSE-C"]
+}
+
 
 

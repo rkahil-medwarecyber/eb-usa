@@ -15,19 +15,98 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 resource "aws_transfer_server" "eb_sftp" {
-  endpoint_type                  = var.endpoint_type
-  domain                         = var.domain
-  identity_provider_type         = var.identity_provider_type
-  security_policy_name           = var.security_policy_name
-  ip_address_type                = var.ip_address_type
-  host_key                       = var.host_key
-  directory_listing_optimization = var.directory_listing_optimization
+  endpoint_type          = var.endpoint_type
+  domain                 = var.domain
+  identity_provider_type = var.identity_provider_type
+  security_policy_name   = var.security_policy_name
+  ip_address_type        = var.ip_address_type
+  host_key               = var.host_key
 
+  s3_storage_options {
+    directory_listing_optimization = var.directory_listing_optimization
+  }
 
   tags = {
     Name        = var.server_name
     Environment = var.environment
   }
+}
+
+resource "aws_iam_role" "sftp_transfer_role" {
+  name = var.iam_role_name
 
 
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "transfer.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_s3_bucket" "eb_sftp_bucket" {
+  bucket = var.s3_bucket_name
+  region = var.region
+
+  tags = {
+    Name        = var.s3_bucket_name
+    Environment = var.environment
+  }
+}
+
+resource "aws_s3_bucket_versioning" "eb_versioning" {
+  bucket = aws_s3_bucket.eb_sftp_bucket.id
+
+  versioning_configuration {
+    status = var.versioning
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "eb_encryption" {
+  bucket = aws_s3_bucket.eb_sftp_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = var.sse_algorithm
+    }
+
+    blocked_encryption_types = var.blocked_encryption_types
+  }
+}
+
+resource "aws_s3_bucket_policy" "eb_policy" {
+  bucket = aws_s3_bucket.eb_sftp_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowListingOfUserFolder"
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket"
+        ]
+        Resource = [
+          aws_s3_bucket.eb_sftp_bucket.arn
+        ]
+      },
+      {
+        Sid    = "HomeDirObjectAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:PubOject",
+          "s3:GetObject",
+          "s3:DeleteObject",
+          "s3:GetObjectVersion",
+          "s3:GetObjectACL",
+          "s3:PutObjectACL"
+        ]
+        Resource = "${aws_s3_bucket.eb_sftp_bucket.arn}/*"
+      }
+    ]
+  })
 }
