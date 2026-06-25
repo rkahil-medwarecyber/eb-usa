@@ -93,6 +93,11 @@ resource "aws_s3_bucket_policy" "eb_policy" {
       {
         Sid    = "AllowListingOfUserFolder"
         Effect = "Allow"
+
+        Principal = {
+          AWS = aws_iam_role.sftp_transfer_role.arn
+        }
+
         Action = [
           "s3:ListBucket"
         ]
@@ -103,6 +108,11 @@ resource "aws_s3_bucket_policy" "eb_policy" {
       {
         Sid    = "HomeDirObjectAccess"
         Effect = "Allow"
+
+        Principal = {
+          AWS = aws_iam_role.sftp_transfer_role.arn
+        }
+
         Action = [
           "s3:PubOject",
           "s3:GetObject",
@@ -117,13 +127,18 @@ resource "aws_s3_bucket_policy" "eb_policy" {
   })
 }
 
+resource "tls_private_key" "sftp_transfer_host" {
+  algorithm = var.host_key
+  rsa_bits = 2048
+}
+
 resource "aws_transfer_server" "eb_sftp" {
   endpoint_type          = var.endpoint_type
   domain                 = var.domain
   identity_provider_type = var.identity_provider_type
   security_policy_name   = var.security_policy_name
   ip_address_type        = var.ip_address_type
-  host_key               = var.host_key
+  host_key               = tls_private_key.sftp_transfer_host.private_key_pem
 
   logging_role = aws_iam_role.sftp_transfer_logging_role.arn
 
