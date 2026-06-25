@@ -114,7 +114,7 @@ resource "aws_s3_bucket_policy" "eb_policy" {
         }
 
         Action = [
-          "s3:PubObject",
+          "s3:PutObject",
           "s3:GetObject",
           "s3:DeleteObject",
           "s3:GetObjectVersion",
