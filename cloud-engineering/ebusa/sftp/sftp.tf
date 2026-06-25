@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = ">= 5.0"
     }
   }
 }
@@ -14,27 +14,12 @@ provider "aws" {
 # This data source checks your connection by fetching your AWS Account ID
 data "aws_caller_identity" "current" {}
 
-resource "aws_transfer_server" "eb_sftp" {
-  endpoint_type          = var.endpoint_type
-  domain                 = var.domain
-  identity_provider_type = var.identity_provider_type
-  security_policy_name   = var.security_policy_name
-  ip_address_type        = var.ip_address_type
-  host_key               = var.host_key
-
-  s3_storage_options {
-    directory_listing_optimization = var.directory_listing_optimization
-  }
-
-  tags = {
-    Name        = var.server_name
-    Environment = var.environment
-  }
+resource "aws_cloudwatch_log_group" "transfer" {
+  name_prefix = var.name_prefix
 }
 
 resource "aws_iam_role" "sftp_transfer_role" {
-  name = var.iam_role_name
-
+  name = var.iam_sftp_role_name
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -46,6 +31,25 @@ resource "aws_iam_role" "sftp_transfer_role" {
       Action = "sts:AssumeRole"
     }]
   })
+}
+
+resource "aws_iam_role" "sftp_transfer_logging_role" {
+  name = var.iam_cloudwatch_role_name
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "transfer.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/service-role/AWSTransferLoggingAccess"
+  ]
 }
 
 resource "aws_s3_bucket" "eb_sftp_bucket" {
@@ -109,4 +113,27 @@ resource "aws_s3_bucket_policy" "eb_policy" {
       }
     ]
   })
+}
+
+resource "aws_transfer_server" "eb_sftp" {
+  endpoint_type          = var.endpoint_type
+  domain                 = var.domain
+  identity_provider_type = var.identity_provider_type
+  security_policy_name   = var.security_policy_name
+  ip_address_type        = var.ip_address_type
+  host_key               = var.host_key
+
+  logging_role = aws_iam_role.sftp_transfer_logging_role.arn
+
+  structured_log_destinations = [
+  "${aws_cloudwatch_log_group.transfer.arn}:*"]
+
+  s3_storage_options {
+    directory_listing_optimization = var.directory_listing_optimization
+  }
+
+  tags = {
+    Name        = var.server_name
+    Environment = var.environment
+  }
 }
