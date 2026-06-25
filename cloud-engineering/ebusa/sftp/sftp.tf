@@ -46,10 +46,12 @@ resource "aws_iam_role" "sftp_transfer_logging_role" {
       Action = "sts:AssumeRole"
     }]
   })
+}
 
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/service-role/AWSTransferLoggingAccess"
-  ]
+
+resource "aws_iam_role_policy_attachment" "transfer_logging_attach" {
+  role       = aws_iam_role.sftp_transfer_logging_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSTransferLoggingAccess"
 }
 
 resource "aws_s3_bucket" "eb_sftp_bucket" {
