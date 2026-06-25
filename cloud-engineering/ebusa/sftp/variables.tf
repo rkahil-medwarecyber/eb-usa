@@ -43,7 +43,7 @@ variable "blocked_encryption_types" {
 
 ##### CloudWatch Logs Variables #####
 
-variable "name_prefix" "eb_sftp_dev_logs" {
+variable "name_prefix" {
   description = "CW Log Prefix for SFTP Resource"
   type        = string
 }
