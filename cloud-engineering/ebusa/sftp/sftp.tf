@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = ">= 5.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~>5.0"
+    }
   }
 }
 
@@ -25,8 +29,11 @@ data "aws_ssm_parameter" "cloudflare_api_token" {
 }
 
 data "cloudflare_zone" "medwarecyber_zone" {
-  name = var.cloudflare_domain
+  filter = {
+    name = var.cloudflare_domain
+  }
 }
+
 
 resource "aws_cloudwatch_log_group" "transfer" {
   name_prefix = var.name_prefix
