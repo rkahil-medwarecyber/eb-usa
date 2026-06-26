@@ -1,0 +1,6 @@
+server_name              = "EBUSA_DEVELOPMENT"
+environment              = "Development"
+iam_sftp_role_name       = "EBUSA-Dev-SFTP-AccessRole"
+iam_cloudwatch_role_name = "EBUSA-SFTP-CloudWatch-Role"
+s3_bucket_name           = "ebusa-dev-sftp-bucket1"
+name_prefix              = "ebusa_dev_sftp_transfer_logs_"
